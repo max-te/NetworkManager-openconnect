@@ -491,6 +491,16 @@ update_connection (NMVpnEditor *iface,
 	if (str && strlen (str))
 		nm_setting_vpn_add_data_item (s_vpn, NM_OPENCONNECT_KEY_REPORTED_OS, str);
 
+	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "user_agent"));
+	str = (char *) gtk_entry_get_text (GTK_ENTRY (widget));
+	if (str && strlen (str))
+		nm_setting_vpn_add_data_item (s_vpn, NM_OPENCONNECT_KEY_USER_AGENT, str);
+
+	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "version_string"));
+	str = (char *) gtk_entry_get_text (GTK_ENTRY (widget));
+	if (str && strlen (str))
+		nm_setting_vpn_add_data_item (s_vpn, NM_OPENCONNECT_KEY_VERSION_STRING, str);
+
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "token_mode"));
 	model = gtk_combo_box_get_model (GTK_COMBO_BOX (widget));
 	if (gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter)) {
