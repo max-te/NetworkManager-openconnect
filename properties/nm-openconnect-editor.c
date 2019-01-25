@@ -383,6 +383,26 @@ init_editor_plugin (OpenconnectEditor *self, NMConnection *connection, GError **
 	}
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (stuff_changed_cb), self);
 
+	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "user_agent"));
+	if (!widget)
+		return FALSE;
+	if (s_vpn) {
+		value = nm_setting_vpn_get_data_item (s_vpn, NM_OPENCONNECT_KEY_USER_AGENT);
+		if (value)
+			gtk_entry_set_text (GTK_ENTRY (widget), value);
+	}
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (stuff_changed_cb), self);
+
+	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "version_string"));
+	if (!widget)
+		return FALSE;
+	if (s_vpn) {
+		value = nm_setting_vpn_get_data_item (s_vpn, NM_OPENCONNECT_KEY_VERSION_STRING);
+		if (value)
+			gtk_entry_set_text (GTK_ENTRY (widget), value);
+	}
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (stuff_changed_cb), self);
+
 	if (init_token_ui (self, priv, s_vpn) == FALSE)
 		return FALSE;
 

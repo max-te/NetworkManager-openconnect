@@ -1028,6 +1028,7 @@ static int get_config (auth_ui_data *ui_data,
 	char *reported_os;
 #if OPENCONNECT_CHECK_VER(5,5)
 	char *key_pass;
+	char *version_string;
 #endif
 	char *pem_passphrase_fsid;
 	char *cafile;
@@ -1116,6 +1117,11 @@ static int get_config (auth_ui_data *ui_data,
 					      NM_OPENCONNECT_KEY_KEY_PASS);
 	if (key_pass)
 		openconnect_set_key_password(vpninfo, key_pass);
+
+	version_string = g_hash_table_lookup (options,
+					      NM_OPENCONNECT_KEY_VERSION_STRING);
+	if (version_string && version_string[0])
+		openconnect_set_version_string(vpninfo, version_string);
 #endif
 	pem_passphrase_fsid = g_hash_table_lookup (options,
 						   NM_OPENCONNECT_KEY_PEM_PASSPHRASE_FSID);
@@ -1618,6 +1624,7 @@ static void build_main_dialog(auth_ui_data *ui_data)
 
 static auth_ui_data *init_ui_data (char *vpn_name, GHashTable *options, GHashTable *secrets, char *vpn_uuid)
 {
+	char *user_agent;
 	auth_ui_data *ui_data;
 
 	ui_data = g_slice_new0(auth_ui_data);
@@ -1648,7 +1655,12 @@ static auth_ui_data *init_ui_data (char *vpn_name, GHashTable *options, GHashTab
 	g_unix_set_fd_nonblocking(ui_data->cancel_pipes[0], TRUE, NULL);
 	g_unix_set_fd_nonblocking(ui_data->cancel_pipes[1], TRUE, NULL);
 
-	ui_data->vpninfo = (void *)openconnect_vpninfo_new("OpenConnect VPN Agent (NetworkManager)",
+	user_agent = g_hash_table_lookup (options,
+					      NM_OPENCONNECT_KEY_USER_AGENT);
+	if (!user_agent || !user_agent[0])
+	  user_agent = "OpenConnect VPN Agent (NetworkManager)";
+
+	ui_data->vpninfo = (void *)openconnect_vpninfo_new(user_agent,
 							   validate_peer_cert, write_new_config,
 							   nm_process_auth_form, write_progress,
 							   ui_data);

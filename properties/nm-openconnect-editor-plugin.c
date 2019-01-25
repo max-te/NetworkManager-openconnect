@@ -192,6 +192,16 @@ import (NMVpnEditorPlugin *iface, const char *path, GError **error)
 	if (buf)
 		nm_setting_vpn_add_data_item (s_vpn, NM_OPENCONNECT_KEY_REPORTED_OS, buf);
 
+	/* Useragent */
+	buf = g_key_file_get_string (keyfile, "openconnect", "Useragent", NULL);
+	if (buf)
+		nm_setting_vpn_add_data_item (s_vpn, NM_OPENCONNECT_KEY_USER_AGENT, buf);
+
+	/* Version string */
+	buf = g_key_file_get_string (keyfile, "openconnect", "VersionString", NULL);
+	if (buf)
+		nm_setting_vpn_add_data_item (s_vpn, NM_OPENCONNECT_KEY_VERSION_STRING, buf);
+
 	/* User Certificate */
 	buf = g_key_file_get_string (keyfile, "openconnect", "UserCertificate", NULL);
 	if (buf && strcmp(buf, "(null)"))
@@ -241,6 +251,8 @@ export (NMVpnEditorPlugin *iface,
 	gboolean csd_enable = FALSE;
 	const char *csd_wrapper = NULL;
 	const char *reported_os = NULL;
+	const char *useragent = NULL;
+	const char *version_string = NULL;
 	const char *usercert = NULL;
 	const char *privkey = NULL;
 	gboolean pem_passphrase_fsid = FALSE;
@@ -298,6 +310,14 @@ export (NMVpnEditorPlugin *iface,
 	if (value && strlen (value))
 		reported_os = value;
 
+	value = nm_setting_vpn_get_data_item (s_vpn, NM_OPENCONNECT_KEY_USER_AGENT);
+	if (value && strlen (value))
+		useragent = value;
+
+	value = nm_setting_vpn_get_data_item (s_vpn, NM_OPENCONNECT_KEY_VERSION_STRING);
+	if (value && strlen (value))
+		version_string = value;
+
 	value = nm_setting_vpn_get_data_item (s_vpn, NM_OPENCONNECT_KEY_USERCERT);
 	if (value && strlen (value))
 		usercert = value;
@@ -337,6 +357,8 @@ export (NMVpnEditorPlugin *iface,
 		 "CSDEnable=%s\n"
 		 "CSDWrapper=%s\n"
 		 "ReportedOS=%s\n"
+		 "Useragent=%s\n"
+		 "VersionString=%s\n"
 		 "UserCertificate=%s\n"
 		 "PrivateKey=%s\n"
 		 "FSID=%s\n"
@@ -351,6 +373,8 @@ export (NMVpnEditorPlugin *iface,
 		 /* Cisco Secure Desktop */  csd_enable ? "1" : "0",
 		 /* CSD Wrapper Script */    csd_wrapper ? csd_wrapper : "",
 		 /* Reported OS */           reported_os ? reported_os : "",
+		 /* Useragent */             useragent ? useragent : "",
+		 /* Version String */        version_string ? version_string : "",
 		 /* User Certificate */      usercert ? usercert : "",
 		 /* Private Key */           privkey ? privkey : "",
 		 /* FSID */                  pem_passphrase_fsid ? "1" : "0",
